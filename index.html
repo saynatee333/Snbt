@@ -1,25 +1,38 @@
 <!DOCTYPE html>
-
 <html lang="th">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ระบบประมูลทอดตลาดทรัพย์สิน</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React 18 -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel สำหรับ JSX -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif; }
-  </style>
+  
+  <!-- Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body>
   <div id="root"></div>
 
   <script type="text/babel">
     const { useState, useEffect } = React;
-    const { Gavel, Users, Clock, Plus, X, CheckCircle } = lucide;
+
+    // Lucide Icons Component
+    const Gavel = (props) => <i data-lucide="gavel" {...props} />;
+    const Users = (props) => <i data-lucide="users" {...props} />;
+    const Clock = (props) => <i data-lucide="clock" {...props} />;
+    const TrendingUp = (props) => <i data-lucide="trending-up" {...props} />;
+    const Plus = (props) => <i data-lucide="plus" {...props} />;
+    const X = (props) => <i data-lucide="x" {...props} />;
+    const Edit2 = (props) => <i data-lucide="edit-2" {...props} />;
+    const CheckCircle = (props) => <i data-lucide="check-circle" {...props} />;
 
     const AuctionSystem = () => {
       const [activeTab, setActiveTab] = useState('dashboard');
@@ -53,6 +66,7 @@
       const [showAddAuction, setShowAddAuction] = useState(false);
       const [bidIncrement, setBidIncrement] = useState(10000);
 
+      // Timer for active auctions
       useEffect(() => {
         const timer = setInterval(() => {
           setAuctions(prev => prev.map(auction => {
@@ -69,9 +83,9 @@
       }, []);
 
       const startAuction = (auctionId) => {
-        setAuctions(prev => prev.map(auction => 
-          auction.id === auctionId 
-            ? { ...auction, status: 'active', endTime: Date.now() + 300000 }
+        setAuctions(prev => prev.map(auction =>
+          auction.id === auctionId
+            ? { ...auction, status: 'active', endTime: Date.now() + 300000 } // 5 นาที
             : auction
         ));
       };
@@ -79,7 +93,7 @@
       const placeBid = (auctionId, bidderId, amount) => {
         const bidder = bidders.find(b => b.id === bidderId);
         if (!bidder) return;
-        
+
         setAuctions(prev => prev.map(auction => {
           if (auction.id === auctionId && amount >= auction.currentPrice + auction.minIncrement) {
             const newBid = {
@@ -99,26 +113,23 @@
 
         setSelectedAuction(prev => {
           if (prev && prev.id === auctionId) {
-            const updatedAuction = auctions.find(a => a.id === auctionId);
-            if (updatedAuction) {
-              return {
-                ...updatedAuction,
-                currentPrice: amount,
-                bids: [{
-                  bidderId,
-                  bidderName: bidder.name,
-                  amount,
-                  time: new Date().toLocaleTimeString('th-TH')
-                }, ...updatedAuction.bids]
-              };
-            }
+            return {
+              ...prev,
+              currentPrice: amount,
+              bids: [{
+                bidderId,
+                bidderName: bidder.name,
+                amount,
+                time: new Date().toLocaleTimeString('th-TH')
+              }, ...prev.bids]
+            };
           }
           return prev;
         });
       };
 
       const closeAuction = (auctionId) => {
-        setAuctions(prev => prev.map(auction => 
+        setAuctions(prev => prev.map(auction =>
           auction.id === auctionId ? { ...auction, status: 'closed' } : auction
         ));
       };
@@ -166,111 +177,111 @@
       };
 
       const renderDashboard = () => (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937' }}>แดชบอร์ดการประมูล</h2>
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-gray-800">แดชบอร์ดการประมูล</h2>
             <button
               onClick={() => setShowAddAuction(true)}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#2563eb', color: 'white', padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer' }}
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Plus size={20} />
               เพิ่มรายการประมูล
             </button>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
-            <div style={{ background: '#dbeafe', padding: '24px', borderRadius: '8px', border: '2px solid #93c5fd' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-blue-50 p-6 rounded-lg border-2 border-blue-200">
+              <div className="flex items-center justify-between">
                 <div>
-                  <p style={{ color: '#2563eb', fontSize: '14px', fontWeight: '500' }}>รอเริ่มประมูล</p>
-                  <p style={{ fontSize: '36px', fontWeight: 'bold', color: '#1e40af' }}>
+                  <p className="text-blue-600 text-sm font-medium">รอเริ่มประมูล</p>
+                  <p className="text-3xl font-bold text-blue-700">
                     {auctions.filter(a => a.status === 'waiting').length}
                   </p>
                 </div>
-                <Clock size={40} color="#93c5fd" />
+                <Clock size={40} className="text-blue-400" />
               </div>
             </div>
 
-            <div style={{ background: '#dcfce7', padding: '24px', borderRadius: '8px', border: '2px solid #86efac' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div className="bg-green-50 p-6 rounded-lg border-2 border-green-200">
+              <div className="flex items-center justify-between">
                 <div>
-                  <p style={{ color: '#16a34a', fontSize: '14px', fontWeight: '500' }}>กำลังประมูล</p>
-                  <p style={{ fontSize: '36px', fontWeight: 'bold', color: '#15803d' }}>
+                  <p className="text-green-600 text-sm font-medium">กำลังประมูล</p>
+                  <p className="text-3xl font-bold text-green-700">
                     {auctions.filter(a => a.status === 'active').length}
                   </p>
                 </div>
-                <Gavel size={40} color="#86efac" />
+                <Gavel size={40} className="text-green-400" />
               </div>
             </div>
 
-            <div style={{ background: '#f3f4f6', padding: '24px', borderRadius: '8px', border: '2px solid #d1d5db' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div className="bg-gray-50 p-6 rounded-lg border-2 border-gray-200">
+              <div className="flex items-center justify-between">
                 <div>
-                  <p style={{ color: '#4b5563', fontSize: '14px', fontWeight: '500' }}>ปิดการประมูล</p>
-                  <p style={{ fontSize: '36px', fontWeight: 'bold', color: '#374151' }}>
+                  <p className="text-gray-600 text-sm font-medium">ปิดการประมูล</p>
+                  <p className="text-3xl font-bold text-gray-700">
                     {auctions.filter(a => a.status === 'closed').length}
                   </p>
                 </div>
-                <CheckCircle size={40} color="#d1d5db" />
+                <CheckCircle size={40} className="text-gray-400" />
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="space-y-4">
             {auctions.map(auction => (
-              <div key={auction.id} style={{ background: 'white', padding: '24px', borderRadius: '8px', border: '2px solid #e5e7eb' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>{auction.title}</h3>
-                    <p style={{ color: '#4b5563', marginBottom: '4px' }}>📍 {auction.location}</p>
-                    <p style={{ fontSize: '14px', color: '#6b7280' }}>ราคาเริ่มต้น: ฿{formatPrice(auction.startPrice)}</p>
+              <div key={auction.id} className="bg-white p-6 rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">{auction.title}</h3>
+                    <p className="text-gray-600 mb-1">📍 {auction.location}</p>
+                    <p className="text-sm text-gray-500">ราคาเริ่มต้น: ฿{formatPrice(auction.startPrice)}</p>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
+                  <div className="text-right">
                     {auction.status === 'waiting' && (
-                      <span style={{ display: 'inline-block', background: '#fef3c7', color: '#92400e', padding: '4px 12px', borderRadius: '9999px', fontSize: '14px', fontWeight: '500' }}>
+                      <span className="inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
                         รอเริ่มประมูล
                       </span>
                     )}
                     {auction.status === 'active' && (
-                      <span style={{ display: 'inline-block', background: '#d1fae5', color: '#065f46', padding: '4px 12px', borderRadius: '9999px', fontSize: '14px', fontWeight: '500' }}>
+                      <span className="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
                         กำลังประมูล
                       </span>
                     )}
                     {auction.status === 'closed' && (
-                      <span style={{ display: 'inline-block', background: '#f3f4f6', color: '#1f2937', padding: '4px 12px', borderRadius: '9999px', fontSize: '14px', fontWeight: '500' }}>
+                      <span className="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
                         ปิดการประมูล
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div style={{ background: 'linear-gradient(to right, #dbeafe, #f3e8ff)', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg mb-4">
+                  <div className="flex justify-between items-center">
                     <div>
-                      <p style={{ fontSize: '14px', color: '#4b5563', marginBottom: '4px' }}>ราคาปัจจุบัน</p>
-                      <p style={{ fontSize: '36px', fontWeight: 'bold', color: '#2563eb' }}>฿{formatPrice(auction.currentPrice)}</p>
+                      <p className="text-sm text-gray-600 mb-1">ราคาปัจจุบัน</p>
+                      <p className="text-3xl font-bold text-blue-600">฿{formatPrice(auction.currentPrice)}</p>
                     </div>
                     {auction.status === 'active' && (
-                      <div style={{ textAlign: 'right' }}>
-                        <p style={{ fontSize: '14px', color: '#4b5563', marginBottom: '4px' }}>เวลาที่เหลือ</p>
-                        <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#dc2626' }}>{getTimeRemaining(auction.endTime)}</p>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-600 mb-1">เวลาที่เหลือ</p>
+                        <p className="text-2xl font-bold text-red-600">{getTimeRemaining(auction.endTime)}</p>
                       </div>
                     )}
                   </div>
                 </div>
 
                 {auction.bids.length > 0 && (
-                  <div style={{ marginBottom: '16px' }}>
-                    <p style={{ fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>ผู้เสนอราคาล่าสุด:</p>
-                    <p style={{ fontSize: '18px', fontWeight: '600', color: '#16a34a' }}>{auction.bids[0].bidderName}</p>
+                  <div className="mb-4">
+                    <p className="text-sm font-medium text-gray-700 mb-2">ผู้เสนอราคาล่าสุด:</p>
+                    <p className="text-lg font-semibold text-green-600">{auction.bids[0].bidderName}</p>
                   </div>
                 )}
 
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div className="flex gap-2">
                   {auction.status === 'waiting' && (
                     <button
                       onClick={() => startAuction(auction.id)}
-                      style={{ flex: 1, background: '#16a34a', color: 'white', padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '500' }}
+                      className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium"
                     >
                       เริ่มประมูล
                     </button>
@@ -283,13 +294,13 @@
                           setSelectedAuction(selected);
                           setBidIncrement(selected.minIncrement);
                         }}
-                        style={{ flex: 1, background: '#2563eb', color: 'white', padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '500' }}
+                        className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
                       >
                         เข้าสู่ห้องประมูล
                       </button>
                       <button
                         onClick={() => closeAuction(auction.id)}
-                        style={{ background: '#dc2626', color: 'white', padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '500' }}
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium"
                       >
                         ปิดการประมูล
                       </button>
@@ -298,7 +309,7 @@
                   {auction.status === 'closed' && (
                     <button
                       onClick={() => setSelectedAuction(auction)}
-                      style={{ flex: 1, background: '#6b7280', color: 'white', padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '500' }}
+                      className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors font-medium"
                     >
                       ดูรายละเอียด
                     </button>
@@ -309,58 +320,58 @@
           </div>
 
           {showAddAuction && (
-            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', zIndex: 50 }}>
-              <div style={{ background: 'white', borderRadius: '8px', padding: '24px', maxWidth: '28rem', width: '100%' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                  <h3 style={{ fontSize: '20px', fontWeight: 'bold' }}>เพิ่มรายการประมูลใหม่</h3>
-                  <button onClick={() => setShowAddAuction(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280' }}>
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold">เพิ่มรายการประมูลใหม่</h3>
+                  <button onClick={() => setShowAddAuction(false)} className="text-gray-500 hover:text-gray-700">
                     <X size={24} />
                   </button>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div className="space-y-4">
                   <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>ชื่อทรัพย์สิน</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อทรัพย์สิน</label>
                     <input
                       type="text"
                       value={newAuction.title}
                       onChange={(e) => setNewAuction({...newAuction, title: e.target.value})}
-                      style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px' }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="เช่น ที่ดินเปล่า เนื้อที่ 50 ตร.ว."
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>สถานที่</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">สถานที่</label>
                     <input
                       type="text"
                       value={newAuction.location}
                       onChange={(e) => setNewAuction({...newAuction, location: e.target.value})}
-                      style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px' }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="เช่น อ.เมือง จ.เชียงใหม่"
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>ราคาเริ่มต้น (บาท)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">ราคาเริ่มต้น (บาท)</label>
                     <input
                       type="number"
                       value={newAuction.startPrice}
                       onChange={(e) => setNewAuction({...newAuction, startPrice: e.target.value})}
-                      style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px' }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="500000"
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>ราคาขั้นต่ำที่เพิ่มได้ (บาท)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">ราคาขั้นต่ำที่เพิ่มได้ (บาท)</label>
                     <input
                       type="number"
                       value={newAuction.minIncrement}
                       onChange={(e) => setNewAuction({...newAuction, minIncrement: e.target.value})}
-                      style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px' }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="10000"
                     />
                   </div>
                   <button
                     onClick={addAuction}
-                    style={{ width: '100%', background: '#2563eb', color: 'white', padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '500' }}
+                    className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
                   >
                     เพิ่มรายการ
                   </button>
@@ -372,76 +383,76 @@
       );
 
       const renderBidders = () => (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937' }}>จัดการผู้เข้าประมูล</h2>
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-gray-800">จัดการผู้เข้าประมูล</h2>
             <button
               onClick={() => setShowAddBidder(true)}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#2563eb', color: 'white', padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer' }}
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Plus size={20} />
               เพิ่มผู้เข้าประมูล
             </button>
           </div>
 
-          <div style={{ background: '#dbeafe', padding: '16px', borderRadius: '8px', border: '1px solid #93c5fd' }}>
-            <p style={{ color: '#1e40af' }}>
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <p className="text-blue-800">
               <strong>จำนวนผู้ลงทะเบียน:</strong> {bidders.length} คน
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {bidders.map(bidder => (
-              <div key={bidder.id} style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '2px solid #e5e7eb' }}>
-                <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between' }}>
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1f2937', marginBottom: '4px' }}>{bidder.name}</h3>
-                    <p style={{ color: '#4b5563', fontSize: '14px', marginBottom: '8px' }}>📱 {bidder.phone}</p>
+              <div key={bidder.id} className="bg-white p-4 rounded-lg border-2 border-gray-200">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-800 mb-1">{bidder.name}</h3>
+                    <p className="text-gray-600 text-sm mb-2">📱 {bidder.phone}</p>
                     {bidder.approved && (
-                      <span style={{ display: 'inline-block', background: '#d1fae5', color: '#065f46', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: '500' }}>
+                      <span className="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
                         ✓ อนุมัติแล้ว
                       </span>
                     )}
                   </div>
-                  <Users size={24} color="#93c5fd" />
+                  <Users size={24} className="text-blue-400" />
                 </div>
               </div>
             ))}
           </div>
 
           {showAddBidder && (
-            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', zIndex: 50 }}>
-              <div style={{ background: 'white', borderRadius: '8px', padding: '24px', maxWidth: '28rem', width: '100%' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                  <h3 style={{ fontSize: '20px', fontWeight: 'bold' }}>เพิ่มผู้เข้าประมูล</h3>
-                  <button onClick={() => setShowAddBidder(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280' }}>
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold">เพิ่มผู้เข้าประมูล</h3>
+                  <button onClick={() => setShowAddBidder(false)} className="text-gray-500 hover:text-gray-700">
                     <X size={24} />
                   </button>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div className="space-y-4">
                   <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>ชื่อ-นามสกุล</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อ-นามสกุล</label>
                     <input
                       type="text"
                       value={newBidder.name}
                       onChange={(e) => setNewBidder({...newBidder, name: e.target.value})}
-                      style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px' }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="นายสมชาย ใจดี"
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>เบอร์โทรศัพท์</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์</label>
                     <input
                       type="tel"
                       value={newBidder.phone}
                       onChange={(e) => setNewBidder({...newBidder, phone: e.target.value})}
-                      style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px' }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="081-234-5678"
                     />
                   </div>
                   <button
                     onClick={addBidder}
-                    style={{ width: '100%', background: '#2563eb', color: 'white', padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '500' }}
+                    className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
                   >
                     เพิ่มผู้เข้าประมูล
                   </button>
@@ -461,48 +472,180 @@
         };
 
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className="space-y-6">
             <button
               onClick={() => setSelectedAuction(null)}
-              style={{ background: 'none', border: 'none', color: '#2563eb', fontSize: '16px', fontWeight: '500', cursor: 'pointer', textAlign: 'left' }}
+              className="text-blue-600 hover:text-blue-800 font-medium"
             >
               ← กลับไปแดชบอร์ด
             </button>
 
-            <div style={{ background: 'white', padding: '24px', borderRadius: '8px', border: '2px solid #93c5fd' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>{selectedAuction.title}</h2>
-              <p style={{ color: '#4b5563', marginBottom: '16px' }}>📍 {selectedAuction.location}</p>
+            <div className="bg-white p-6 rounded-lg border-2 border-blue-200">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">{selectedAuction.title}</h2>
+              <p className="text-gray-600 mb-4">📍 {selectedAuction.location}</p>
 
-              <div style={{ background: 'linear-gradient(to right, #d1fae5, #dbeafe)', padding: '24px', borderRadius: '8px', marginBottom: '24px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg mb-6">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p style={{ fontSize: '14px', color: '#4b5563', marginBottom: '4px' }}>ราคาปัจจุบัน</p>
-                    <p style={{ fontSize: '40px', fontWeight: 'bold', color: '#16a34a' }}>฿{formatPrice(selectedAuction.currentPrice)}</p>
+                    <p className="text-sm text-gray-600 mb-1">ราคาปัจจุบัน</p>
+                    <p className="text-4xl font-bold text-green-600">฿{formatPrice(selectedAuction.currentPrice)}</p>
                   </div>
                   {selectedAuction.status === 'active' && (
-                    <div style={{ textAlign: 'right' }}>
-                      <p style={{ fontSize: '14px', color: '#4b5563', marginBottom: '4px' }}>เวลาที่เหลือ</p>
-                      <p style={{ fontSize: '40px', fontWeight: 'bold', color: '#dc2626' }}>{getTimeRemaining(selectedAuction.endTime)}</p>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-600 mb-1">เวลาที่เหลือ</p>
+                      <p className="text-4xl font-bold text-red-600">{getTimeRemaining(selectedAuction.endTime)}</p>
                     </div>
                   )}
                 </div>
               </div>
 
               {selectedAuction.status === 'active' && (
-                <div style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1f2937' }}>รับการเสนอราคา</h3>
+                <div className="mb-6 space-y-4">
+                  <h3 className="text-lg font-bold text-gray-800">รับการเสนอราคา</h3>
                   
                   <div>
-                    <p style={{ fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>เลือกจำนวนเงินที่เพิ่ม:</p>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '8px' }}>
+                    <p className="text-sm font-medium text-gray-700 mb-2">เลือกจำนวนเงินที่เพิ่ม:</p>
+                    <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                       {[10000, 20000, 50000, 100000, 200000, 500000].map(amount => (
                         <button
                           key={amount}
                           onClick={() => setBidIncrement(amount)}
-                          style={{
-                            padding: '12px',
-                            borderRadius: '8px',
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            cursor: 'pointer',
-                            border
+                          className={`p-3 rounded-lg transition-all text-sm font-medium ${
+                            bidIncrement === amount
+                              ? 'bg-blue-500 text-white ring-2 ring-blue-600'
+                              : 'bg-white border-2 border-gray-300 text-gray-800 hover:border-blue-400'
+                          }`}
+                        >
+                          +฿{formatPrice(amount)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">หรือระบุจำนวนเงินเอง:</label>
+                    <input
+                      type="number"
+                      value={bidIncrement}
+                      onChange={(e) => setBidIncrement(parseInt(e.target.value) || 0)}
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg font-medium"
+                      placeholder="ระบุจำนวนเงิน (บาท)"
+                      min={selectedAuction.minIncrement}
+                      step={1000}
+                    />
+                  </div>
+
+                  <div className="bg-blue-50 border-2 border-blue-200 p-4 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-1">ราคาที่จะเสนอ:</p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      ฿{formatPrice(selectedAuction.currentPrice + bidIncrement)}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">เลือกผู้เสนอราคา:</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {bidders.map(bidder => (
+                        <button
+                          key={bidder.id}
+                          onClick={() => handleBidClick(bidder.id)}
+                          className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg active:scale-95 text-left"
+                        >
+                          <p className="font-bold mb-1 text-lg">{bidder.name}</p>
+                          <p className="text-sm opacity-90">คลิกเพื่อเสนอราคา</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <h3 className="text-lg font-bold text-gray-800 mb-3">ประวัติการเสนอราคา</h3>
+                {selectedAuction.bids.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">ยังไม่มีการเสนอราคา</p>
+                ) : (
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {selectedAuction.bids.map((bid, index) => (
+                      <div
+                        key={index}
+                        className={`p-4 rounded-lg ${
+                          index === 0 ? 'bg-green-50 border-2 border-green-300' : 'bg-gray-50'
+                        }`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-bold text-gray-800">{bid.bidderName}</p>
+                            <p className="text-sm text-gray-600">{bid.time}</p>
+                          </div>
+                          <p className="text-xl font-bold text-blue-600">฿{formatPrice(bid.amount)}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      // Init Lucide icons
+      useEffect(() => {
+        if (window.lucide) lucide.createIcons();
+      });
+
+      return (
+        <div className="min-h-screen bg-gray-100">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 shadow-lg">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex items-center gap-3 mb-2">
+                <Gavel size={32} />
+                <h1 className="text-3xl font-bold">ระบบประมูลทอดตลาดทรัพย์สิน</h1>
+              </div>
+              <p className="text-blue-100">สำหรับเจ้าพนักงานบังคับคดี</p>
+            </div>
+          </div>
+
+          <div className="max-w-7xl mx-auto p-6">
+            {!selectedAuction && (
+              <div className="mb-6 flex gap-2">
+                <button
+                  onClick={() => setActiveTab('dashboard')}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                    activeTab === 'dashboard'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  แดชบอร์ด
+                </button>
+                <button
+                  onClick={() => setActiveTab('bidders')}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                    activeTab === 'bidders'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  ผู้เข้าประมูล
+                </button>
+              </div>
+            )}
+
+            {selectedAuction ? renderAuctionRoom() : activeTab === 'dashboard' ? renderDashboard() : renderBidders()}
+          </div>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<AuctionSystem />);
+  </script>
+
+  <script>
+    // Init Lucide icons หลังโหลดหน้า
+    if (window.lucide) lucide.createIcons();
+  </script>
+</body>
+</html>
